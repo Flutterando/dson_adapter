@@ -11,11 +11,15 @@ class DSON {
     Map<String, Function> inner = const {},
     List<ResolverCallback> resolvers = const [],
   }) {
-    final mainConstructorNamed = mainConstructor.runtimeType.toString();
-    final hasOnlyNamedParams = RegExp(r'\(\{(.+)\}\)').firstMatch(mainConstructorNamed);
-    if (hasOnlyNamedParams == null) {
-      final className = mainConstructorNamed.split(' => ').last;
-      throw ParamsNotAllowed('$className must have named params only!');
+    RegExpMatch namedParamsRegExMatch() {
+      final mainConstructorNamed = mainConstructor.runtimeType.toString();
+      final result = RegExp(r'\(\{(.+)\}\)').firstMatch(mainConstructorNamed);
+
+      if (result == null) {
+        throw ParamsNotAllowed('${T.runtimeType} must have named params only!');
+      }
+
+      return result;
     }
 
     if (map is List) {
@@ -28,7 +32,7 @@ class DSON {
       }).toList() as T;
     }
 
-    final params = hasOnlyNamedParams //
+    final params = namedParamsRegExMatch() //
         .group(1)!
         .split(',')
         .map((e) => e.trim())
@@ -44,7 +48,8 @@ class DSON {
           value = map[param.name];
         }
 
-        value = resolvers.fold(value, (previousValue, element) => element(param.name, previousValue));
+        value = resolvers.fold(value,
+            (previousValue, element) => element(param.name, previousValue));
 
         final entry = MapEntry(Symbol(param.name), value);
         return entry;
