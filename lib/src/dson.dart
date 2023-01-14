@@ -2,7 +2,6 @@ import 'errors/dson_exception.dart';
 
 typedef ResolverCallback = Object Function(String key, dynamic value);
 
-// [] - Pq é necessario instanciar DSON ao invés de utilizar um metodo static?
 class DSON {
   const DSON();
 
