@@ -16,7 +16,7 @@ class DSON {
       final result = RegExp(r'\(\{(.+)\}\)').firstMatch(mainConstructorNamed);
 
       if (result == null) {
-        throw ParamsNotAllowed('${T.runtimeType} must have named params only!');
+        throw ParamsNotAllowed('$T must have named params only!');
       }
 
       return result;
