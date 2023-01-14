@@ -51,8 +51,7 @@ class DSON {
         value = resolvers.fold(value,
             (previousValue, element) => element(param.name, previousValue));
 
-        final entry = MapEntry(Symbol(param.name), value);
-        return entry;
+        return MapEntry(Symbol(param.name), value);
       },
     ).toList();
 
