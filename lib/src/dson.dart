@@ -2,6 +2,7 @@ import 'errors/dson_exception.dart';
 
 typedef ResolverCallback = Object Function(String key, dynamic value);
 
+// [] - Pq é necessario instanciar DSON ao invés de utilizar um metodo static?
 class DSON {
   const DSON();
 
@@ -36,7 +37,7 @@ class DSON {
         .group(1)!
         .split(',')
         .map((e) => e.trim())
-        .map(_stringToParam)
+        .map(Param.fromString)
         .map(
       (param) {
         dynamic value;
@@ -62,19 +63,6 @@ class DSON {
 
     return Function.apply(mainConstructor, [], namedParams);
   }
-
-  Param _stringToParam(String paramText) {
-    final elements = paramText.split(' ');
-
-    final name = elements.last;
-    elements.removeLast();
-    final type = elements.last;
-
-    return Param(
-      name: name,
-      type: type,
-    );
-  }
 }
 
 class Param {
@@ -85,6 +73,18 @@ class Param {
     required this.type,
     required this.name,
   });
+
+  factory Param.fromString(String str) {
+    final elements = str.split(' ');
+
+    final name = elements.removeLast();
+    final type = elements.last;
+
+    return Param(
+      name: name,
+      type: type,
+    );
+  }
 
   @override
   String toString() => 'Param(type: $type, name: $name)';
