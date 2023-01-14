@@ -11,11 +11,15 @@ class DSON {
     Map<String, Function> inner = const {},
     List<ResolverCallback> resolvers = const [],
   }) {
-    final mainConstructorNamed = mainConstructor.runtimeType.toString();
-    final hasOnlyNamedParams = RegExp(r'\(\{(.+)\}\)').firstMatch(mainConstructorNamed);
-    if (hasOnlyNamedParams == null) {
-      final className = mainConstructorNamed.split(' => ').last;
-      throw ParamsNotAllowed('$className must have named params only!');
+    RegExpMatch namedParamsRegExMatch() {
+      final mainConstructorNamed = mainConstructor.runtimeType.toString();
+      final result = RegExp(r'\(\{(.+)\}\)').firstMatch(mainConstructorNamed);
+
+      if (result == null) {
+        throw ParamsNotAllowed('$T must have named params only!');
+      }
+
+      return result;
     }
 
     if (map is List) {
@@ -28,11 +32,11 @@ class DSON {
       }).toList() as T;
     }
 
-    final params = hasOnlyNamedParams //
+    final params = namedParamsRegExMatch() //
         .group(1)!
         .split(',')
         .map((e) => e.trim())
-        .map(_stringToParam)
+        .map(Param.fromString)
         .map(
       (param) {
         dynamic value;
@@ -44,10 +48,10 @@ class DSON {
           value = map[param.name];
         }
 
-        value = resolvers.fold(value, (previousValue, element) => element(param.name, previousValue));
+        value = resolvers.fold(value,
+            (previousValue, element) => element(param.name, previousValue));
 
-        final entry = MapEntry(Symbol(param.name), value);
-        return entry;
+        return MapEntry(Symbol(param.name), value);
       },
     ).toList();
 
@@ -56,19 +60,6 @@ class DSON {
     namedParams.addEntries(params);
 
     return Function.apply(mainConstructor, [], namedParams);
-  }
-
-  Param _stringToParam(String paramText) {
-    final elements = paramText.split(' ');
-
-    final name = elements.last;
-    elements.removeLast();
-    final type = elements.last;
-
-    return Param(
-      name: name,
-      type: type,
-    );
   }
 }
 
@@ -80,6 +71,18 @@ class Param {
     required this.type,
     required this.name,
   });
+
+  factory Param.fromString(String str) {
+    final elements = str.split(' ');
+
+    final name = elements.removeLast();
+    final type = elements.last;
+
+    return Param(
+      name: name,
+      type: type,
+    );
+  }
 
   @override
   String toString() => 'Param(type: $type, name: $name)';
