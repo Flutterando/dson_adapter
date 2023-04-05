@@ -18,6 +18,8 @@ class DSON {
       throw ParamsNotAllowed('$className must have named params only!');
     }
 
+    final regExp = namedParamsRegExMatch(className, mainConstructorNamed);
+
     if (map is List) {
       return map.map((e) {
         return fromJson(
@@ -28,11 +30,11 @@ class DSON {
       }).toList() as T;
     }
 
-    final params = hasOnlyNamedParams //
+    final params = regExp //
         .group(1)!
         .split(',')
         .map((e) => e.trim())
-        .map(_stringToParam)
+        .map(Param.fromString)
         .map(
           (param) {
             dynamic value;
@@ -69,7 +71,31 @@ class DSON {
     return Function.apply(mainConstructor, [], namedParams);
   }
 
-  Param _stringToParam(String paramText) {
+  RegExpMatch namedParamsRegExMatch(String className, String mainConstructorNamed) {
+    final result = RegExp(r'\(\{(.+)\}\)').firstMatch(mainConstructorNamed);
+
+    if (result == null) {
+      throw ParamsNotAllowed('$className must have named params only!');
+    }
+
+    return result;
+  }
+}
+
+class Param {
+  final String type;
+  final String name;
+  final bool isRequired;
+  final bool isNullable;
+
+  Param({
+    required this.type,
+    required this.name,
+    required this.isRequired,
+    required this.isNullable,
+  });
+
+  factory Param.fromString(String paramText) {
     final elements = paramText.split(' ');
 
     final name = elements.last;
@@ -92,20 +118,6 @@ class DSON {
       isNullable: isNullable,
     );
   }
-}
-
-class Param {
-  final String type;
-  final String name;
-  final bool isRequired;
-  final bool isNullable;
-
-  Param({
-    required this.type,
-    required this.name,
-    required this.isRequired,
-    required this.isNullable,
-  });
 
   @override
   String toString() => 'Param(type: $type, name: $name)';
