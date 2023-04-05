@@ -13,8 +13,8 @@ class DSON {
   }) {
     final mainConstructorNamed = mainConstructor.runtimeType.toString();
     final hasOnlyNamedParams = RegExp(r'\(\{(.+)\}\)').firstMatch(mainConstructorNamed);
+    final className = mainConstructorNamed.split(' => ').last;
     if (hasOnlyNamedParams == null) {
-      final className = mainConstructorNamed.split(' => ').last;
       throw ParamsNotAllowed('$className must have named params only!');
     }
 
@@ -34,22 +34,33 @@ class DSON {
         .map((e) => e.trim())
         .map(_stringToParam)
         .map(
-      (param) {
-        dynamic value;
+          (param) {
+            dynamic value;
 
-        if (map[param.name] is Map || map[param.name] is List) {
-          final constructor = inner[param.name]!;
-          value = fromJson(map[param.name], constructor, inner: inner);
-        } else {
-          value = map[param.name];
-        }
+            if (map[param.name] is Map || map[param.name] is List) {
+              final constructor = inner[param.name]!;
+              value = fromJson(map[param.name], constructor, inner: inner);
+            } else {
+              value = map[param.name];
+            }
 
-        value = resolvers.fold(value, (previousValue, element) => element(param.name, previousValue));
+            value = resolvers.fold(value, (previousValue, element) => element(param.name, previousValue));
 
-        final entry = MapEntry(Symbol(param.name), value);
-        return entry;
-      },
-    ).toList();
+            if (value == null) {
+              if (param.isRequired) {
+                throw DSONException('Param $className.${param.name} is required.');
+              } else {
+                return null;
+              }
+            }
+
+            final entry = MapEntry(Symbol(param.name), value);
+            return entry;
+          },
+        )
+        .where((entry) => entry != null)
+        .cast<MapEntry<Symbol, dynamic>>()
+        .toList();
 
     final namedParams = <Symbol, dynamic>{};
 
@@ -63,11 +74,22 @@ class DSON {
 
     final name = elements.last;
     elements.removeLast();
-    final type = elements.last;
+
+    var type = elements.last;
+
+    final isNullable = type.contains('?');
+
+    if (isNullable) {
+      type = type.replaceFirst('?', '');
+    }
+
+    final isRequired = elements.contains('required');
 
     return Param(
       name: name,
       type: type,
+      isRequired: isRequired,
+      isNullable: isNullable,
     );
   }
 }
@@ -75,10 +97,14 @@ class DSON {
 class Param {
   final String type;
   final String name;
+  final bool isRequired;
+  final bool isNullable;
 
   Param({
     required this.type,
     required this.name,
+    required this.isRequired,
+    required this.isNullable,
   });
 
   @override

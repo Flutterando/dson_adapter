@@ -2,12 +2,6 @@
 
 Convert JSON to Dart Class withless code generate(build_runner)
 
-## IN DEVELOPMENT
-
-Don't use in production!!
-
-## Example
-
 ## A simple Object
 
 ```dart
