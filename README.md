@@ -125,5 +125,5 @@ to declare a resolver to help with the cast.
 There are some default resolvers but you can create your own resolvers too.
 
 default resolvers:
-`- listResolver<T>('key-string')`
-`- mapResolver<TKey, TValue>('key-string')`
+- `listResolver<T>('key-string')`
+- `mapResolver<TKey, TValue>('key-string')`
