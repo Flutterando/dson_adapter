@@ -104,13 +104,8 @@ main(){
       // external types
       inner: {
         'owner': Person.new,
-        'parents': Person.new,
+        'parents': ListParam<Person>(Person.new),
       },
-      // cast List, Set and Map to
-      // specific type,
-      resolvers: [
-        listResolver<Person>('parents'),
-      ],
     );
 
     print(home);
@@ -118,12 +113,6 @@ main(){
 
 ```
 
-## Resolvers
+DSON Have `ListParam` and `SetParam` for collection.
 
-To work with collections **(List, Map)** it will be necessary 
-to declare a resolver to help with the cast.
-There are some default resolvers but you can create your own resolvers too.
 
-default resolvers:
-- `listResolver<T>('key-string')`
-- `mapResolver<TKey, TValue>('key-string')`

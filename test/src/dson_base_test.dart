@@ -75,13 +75,8 @@ void main() {
       // external types
       inner: {
         'owner': Person.new,
-        'parents': Person.new,
+        'parents': ListParam<Person>(Person.new),
       },
-      // cast List, Set and Map to
-      // specific type,
-      resolvers: [
-        listResolver<Person>('parents'),
-      ],
     );
 
     expect(home.id, 1);

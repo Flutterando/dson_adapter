@@ -8,7 +8,7 @@ class DSON {
   T fromJson<T>(
     dynamic map,
     Function mainConstructor, {
-    Map<String, Function> inner = const {},
+    Map<String, dynamic> inner = const {},
     List<ResolverCallback> resolvers = const [],
   }) {
     final mainConstructorNamed = mainConstructor.runtimeType.toString();
@@ -20,16 +20,6 @@ class DSON {
 
     final regExp = namedParamsRegExMatch(className, mainConstructorNamed);
 
-    if (map is List) {
-      return map.map((e) {
-        return fromJson(
-          e,
-          mainConstructor,
-          inner: inner,
-        );
-      }).toList() as T;
-    }
-
     final params = regExp //
         .group(1)!
         .split(',')
@@ -39,11 +29,20 @@ class DSON {
           (param) {
             dynamic value;
 
-            if (map[param.name] is Map || map[param.name] is List) {
-              final constructor = inner[param.name]!;
-              value = fromJson(map[param.name], constructor, inner: inner);
+            final workflow = map[param.name];
+
+            if (workflow is Map || workflow is List || workflow is Set) {
+              final innerParam = inner[param.name];
+
+              if (innerParam is IParam) {
+                value = innerParam.call(this, workflow, inner, resolvers);
+              } else if (innerParam is Function) {
+                value = fromJson(workflow, innerParam);
+              } else {
+                throw DSONException('Param $className.${param.name} is a ${workflow.runtimeType} and don\'t have a "inner".');
+              }
             } else {
-              value = map[param.name];
+              value = workflow;
             }
 
             value = resolvers.fold(value, (previousValue, element) => element(param.name, previousValue));
@@ -123,11 +122,67 @@ class Param {
   String toString() => 'Param(type: $type, name: $name)';
 }
 
-ResolverCallback listResolver<T>(String key) {
-  return (innerKey, value) {
-    if (innerKey == key) {
-      return value.cast<T>();
-    }
-    return value;
-  };
+abstract class IParam<T> {
+  T call(
+    DSON dson,
+    dynamic map,
+    Map<String, dynamic> inner,
+    List<Object Function(String, dynamic)> resolvers,
+  );
+}
+
+class ListParam<T> implements IParam<List<T>> {
+  final Function constructor;
+
+  ListParam(this.constructor);
+
+  @override
+  List<T> call(
+    DSON dson,
+    covariant List map,
+    Map<String, dynamic> inner,
+    List<Object Function(String, dynamic)> resolvers,
+  ) {
+    final typedList = map
+        .map((e) {
+          return dson.fromJson(
+            e,
+            constructor,
+            inner: inner,
+            resolvers: resolvers,
+          );
+        })
+        .toList()
+        .cast<T>();
+
+    return typedList;
+  }
+}
+
+class SetParam<T> implements IParam<Set<T>> {
+  final Function constructor;
+
+  SetParam(this.constructor);
+
+  @override
+  Set<T> call(
+    DSON dson,
+    covariant List map,
+    Map<String, dynamic> inner,
+    List<Object Function(String, dynamic)> resolvers,
+  ) {
+    final typedList = map
+        .map((e) {
+          return dson.fromJson(
+            e,
+            constructor,
+            inner: inner,
+            resolvers: resolvers,
+          );
+        })
+        .toSet()
+        .cast<T>();
+
+    return typedList;
+  }
 }
