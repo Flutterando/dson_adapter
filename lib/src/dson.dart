@@ -1,4 +1,4 @@
-import 'errors/dson_exception.dart';
+import '../dson_adapter.dart';
 
 typedef ResolverCallback = Object Function(String key, dynamic value);
 
@@ -24,7 +24,7 @@ class DSON {
         .group(1)!
         .split(',')
         .map((e) => e.trim())
-        .map(Param.fromString)
+        .map(_FunctionParam.fromString)
         .map(
           (param) {
             dynamic value;
@@ -81,20 +81,20 @@ class DSON {
   }
 }
 
-class Param {
+class _FunctionParam {
   final String type;
   final String name;
   final bool isRequired;
   final bool isNullable;
 
-  Param({
+  _FunctionParam({
     required this.type,
     required this.name,
     required this.isRequired,
     required this.isNullable,
   });
 
-  factory Param.fromString(String paramText) {
+  factory _FunctionParam.fromString(String paramText) {
     final elements = paramText.split(' ');
 
     final name = elements.last;
@@ -110,7 +110,7 @@ class Param {
 
     final isRequired = elements.contains('required');
 
-    return Param(
+    return _FunctionParam(
       name: name,
       type: type,
       isRequired: isRequired,
@@ -120,69 +120,4 @@ class Param {
 
   @override
   String toString() => 'Param(type: $type, name: $name)';
-}
-
-abstract class IParam<T> {
-  T call(
-    DSON dson,
-    dynamic map,
-    Map<String, dynamic> inner,
-    List<Object Function(String, dynamic)> resolvers,
-  );
-}
-
-class ListParam<T> implements IParam<List<T>> {
-  final Function constructor;
-
-  ListParam(this.constructor);
-
-  @override
-  List<T> call(
-    DSON dson,
-    covariant List map,
-    Map<String, dynamic> inner,
-    List<Object Function(String, dynamic)> resolvers,
-  ) {
-    final typedList = map
-        .map((e) {
-          return dson.fromJson(
-            e,
-            constructor,
-            inner: inner,
-            resolvers: resolvers,
-          );
-        })
-        .toList()
-        .cast<T>();
-
-    return typedList;
-  }
-}
-
-class SetParam<T> implements IParam<Set<T>> {
-  final Function constructor;
-
-  SetParam(this.constructor);
-
-  @override
-  Set<T> call(
-    DSON dson,
-    covariant List map,
-    Map<String, dynamic> inner,
-    List<Object Function(String, dynamic)> resolvers,
-  ) {
-    final typedList = map
-        .map((e) {
-          return dson.fromJson(
-            e,
-            constructor,
-            inner: inner,
-            resolvers: resolvers,
-          );
-        })
-        .toSet()
-        .cast<T>();
-
-    return typedList;
-  }
 }
