@@ -10,9 +10,13 @@ class DSON {
     Function mainConstructor, {
     Map<String, dynamic> inner = const {},
     List<ResolverCallback> resolvers = const [],
+    Map<Type, Map<String, String>> paramNameReplace = const {},
   }) {
     final mainConstructorNamed = mainConstructor.runtimeType.toString();
-    final hasOnlyNamedParams = RegExp(r'\(\{(.+)\}\)').firstMatch(mainConstructorNamed);
+    final paramNameReplaceWithTypeInString =
+        paramNameReplace.map((key, value) => MapEntry(key.toString(), value));
+    final hasOnlyNamedParams =
+        RegExp(r'\(\{(.+)\}\)').firstMatch(mainConstructorNamed);
     final className = mainConstructorNamed.split(' => ').last;
     if (hasOnlyNamedParams == null) {
       throw ParamsNotAllowed('$className must have named params only!');
@@ -29,27 +33,48 @@ class DSON {
           (param) {
             dynamic value;
 
-            final workflow = map[param.name];
+            String paramName = param.name;
+            final newParamName =
+                paramNameReplaceWithTypeInString[className]?[param.name];
+
+            if (newParamName != null) {
+              paramName = newParamName;
+            }
+
+            final workflow = map[paramName];
 
             if (workflow is Map || workflow is List || workflow is Set) {
               final innerParam = inner[param.name];
 
               if (innerParam is IParam) {
-                value = innerParam.call(this, workflow, inner, resolvers);
+                value = innerParam.call(
+                  this,
+                  workflow,
+                  inner,
+                  resolvers,
+                  paramNameReplace,
+                );
               } else if (innerParam is Function) {
-                value = fromJson(workflow, innerParam);
+                value = fromJson(
+                  workflow,
+                  innerParam,
+                  paramNameReplace: paramNameReplace,
+                );
               } else {
-                throw DSONException('Param $className.${param.name} is a ${workflow.runtimeType} and don\'t have a "inner".');
+                throw DSONException(
+                    'Param $className.${param.name} is a ${workflow.runtimeType} and don\'t have a "inner".');
               }
             } else {
               value = workflow;
             }
 
-            value = resolvers.fold(value, (previousValue, element) => element(param.name, previousValue));
+            value = resolvers.fold(value,
+                (previousValue, element) => element(param.name, previousValue));
 
             if (value == null) {
               if (param.isRequired) {
-                throw DSONException('Param $className.${param.name} is required.');
+                throw DSONException(
+                    'Param $className.${param.name} is required.');
               } else {
                 return null;
               }
@@ -70,7 +95,8 @@ class DSON {
     return Function.apply(mainConstructor, [], namedParams);
   }
 
-  RegExpMatch namedParamsRegExMatch(String className, String mainConstructorNamed) {
+  RegExpMatch namedParamsRegExMatch(
+      String className, String mainConstructorNamed) {
     final result = RegExp(r'\(\{(.+)\}\)').firstMatch(mainConstructorNamed);
 
     if (result == null) {
