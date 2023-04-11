@@ -7,7 +7,14 @@ class DSON {
 
   /// Convert JSON to Dart Class withless code generate(build_runner)
   ///
-  /// In DSON, you could use:
+  /// For complex objects it is necessary to declare the constructor in
+  /// the [inner] property and declare the list resolver in the [resolvers]
+  /// property.
+  ///
+  /// The [aliases] parameter can be used to create alias to specify the name
+  /// of a field when it is deserialized.
+  ///
+  /// For example:
   /// ```dart
   /// Home home = dson.fromJson(
   ///   // json Map or List
@@ -26,14 +33,9 @@ class DSON {
   ///   }
   /// );
   /// ```
-  /// For complex objects it is necessary to declare the constructor in
-  /// the `inner` property and declare the list resolver in the `resolvers`
-  /// property.
+
   ///
-  /// The `aliases` parameter can be used to create alias to specify the name
-  /// of a field when it is deserialized.
-  ///
-  /// For more information on queries, see the
+  /// For more information, see the
   /// [documentation](https://pub.dev/documentation/dson_adapter/latest/).
   T fromJson<T>(
     dynamic map,
