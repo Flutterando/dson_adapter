@@ -1,7 +1,8 @@
-## 1.2.0 - 2023-004-11
+## 1.2.0+1 - 2023-004-11
 
-* Add Aliases propertie;
-* Fix String List
+* Added Aliases propertie;
+* Fixed String List
+* Added Dart Docs
 
 ## 1.0.0
 
