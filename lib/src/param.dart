@@ -6,7 +6,7 @@ abstract class IParam<T> {
     dynamic map,
     Map<String, dynamic> inner,
     List<Object Function(String, dynamic)> resolvers,
-    Map<Type, Map<String, String>> paramNameReplace,
+    Map<Type, Map<String, String>> aliases,
   );
 }
 
@@ -21,7 +21,7 @@ class ListParam<T> implements IParam<List<T>> {
     covariant List map,
     Map<String, dynamic> inner,
     List<Object Function(String, dynamic)> resolvers,
-    Map<Type, Map<String, String>> paramNameReplace,
+    Map<Type, Map<String, String>> aliases,
   ) {
     final typedList = map
         .map((e) {
@@ -30,7 +30,7 @@ class ListParam<T> implements IParam<List<T>> {
             constructor,
             inner: inner,
             resolvers: resolvers,
-            paramNameReplace: paramNameReplace,
+            aliases: aliases,
           );
         })
         .toList()
@@ -51,7 +51,7 @@ class SetParam<T> implements IParam<Set<T>> {
     covariant List map,
     Map<String, dynamic> inner,
     List<Object Function(String, dynamic)> resolvers,
-    Map<Type, Map<String, String>> paramNameReplace,
+    Map<Type, Map<String, String>> aliases,
   ) {
     final typedList = map
         .map((e) {
@@ -60,7 +60,7 @@ class SetParam<T> implements IParam<Set<T>> {
             constructor,
             inner: inner,
             resolvers: resolvers,
-            paramNameReplace: paramNameReplace,
+            aliases: aliases,
           );
         })
         .toSet()

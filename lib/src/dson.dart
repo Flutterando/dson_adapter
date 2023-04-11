@@ -10,11 +10,11 @@ class DSON {
     Function mainConstructor, {
     Map<String, dynamic> inner = const {},
     List<ResolverCallback> resolvers = const [],
-    Map<Type, Map<String, String>> paramNameReplace = const {},
+    Map<Type, Map<String, String>> aliases = const {},
   }) {
     final mainConstructorNamed = mainConstructor.runtimeType.toString();
-    final paramNameReplaceWithTypeInString =
-        paramNameReplace.map((key, value) => MapEntry(key.toString(), value));
+    final aliasesWithTypeInString =
+        aliases.map((key, value) => MapEntry(key.toString(), value));
     final hasOnlyNamedParams =
         RegExp(r'\(\{(.+)\}\)').firstMatch(mainConstructorNamed);
     final className = mainConstructorNamed.split(' => ').last;
@@ -35,7 +35,7 @@ class DSON {
 
             String paramName = param.name;
             final newParamName =
-                paramNameReplaceWithTypeInString[className]?[param.name];
+                aliasesWithTypeInString[className]?[param.name];
 
             if (newParamName != null) {
               paramName = newParamName;
@@ -52,13 +52,13 @@ class DSON {
                   workflow,
                   inner,
                   resolvers,
-                  paramNameReplace,
+                  aliases,
                 );
               } else if (innerParam is Function) {
                 value = fromJson(
                   workflow,
                   innerParam,
-                  paramNameReplace: paramNameReplace,
+                  aliases: aliases,
                 );
               } else {
                 throw DSONException(

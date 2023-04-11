@@ -95,7 +95,83 @@ void main() {
     expect(home.parents[1].age, 23);
   });
 
-  test('fromJson convert map in Home (inner object) when API modify name key',
+  test('fromJson works only named params constructor', () {
+    expect(() => dson.fromJson({}, (String name) {}, aliases: {}),
+        throwsA(isA<ParamsNotAllowed>()));
+  });
+
+  test('throws error if dont has required param', () {
+    final jsonMap = {
+      'name': 'Joshua Clak',
+      'age': 3,
+    };
+
+    expect(() => dson.fromJson(jsonMap, Person.new),
+        throwsA(isA<DSONException>()));
+  });
+
+  test('throw error if not has inner when has object complex', () {
+    final jsonMap = {
+      'id': 1,
+      'name': 'MyHome',
+      'owner': {
+        'id': 1,
+        'name': 'Joshua Clak',
+        'age': 3,
+      },
+      'parents': [
+        {
+          'id': 2,
+          'name': 'Kepper Vidal',
+          'age': 25,
+        },
+        {
+          'id': 3,
+          'name': 'Douglas Bisserra',
+          'age': 23,
+        },
+      ],
+    };
+    expect(
+        () => dson.fromJson(jsonMap, Home.new), throwsA(isA<DSONException>()));
+  });
+
+  test('fromJson convert map in Person with id alias to key', () {
+    final jsonMap = {
+      'key': 1,
+      'name': 'Joshua Clak',
+      'age': 3,
+    };
+    Person person = dson.fromJson(jsonMap, Person.new, aliases: {
+      Person: {'id': 'key'}
+    });
+    expect(person.id, 1);
+    expect(person.name, 'Joshua Clak');
+    expect(person.age, 3);
+  });
+
+  test(
+      'fromJson convert map in Person withless name when name has alias but alias no exist in map',
+      () {
+    final jsonMap = {
+      'id': 1,
+      'name': 'Joshua Clak',
+      'age': 3,
+    };
+
+    Person person = dson.fromJson(
+      jsonMap,
+      Person.new,
+      aliases: {
+        Person: {'name': 'othername'}
+      },
+    );
+    expect(person.id, 1);
+    expect(person.name, null);
+    expect(person.age, 3);
+  });
+
+  test('fromJson convert map in Home (inner object) when API modify most keys',
       () {
     final jsonMap = {
       'id': 1,
@@ -130,7 +206,7 @@ void main() {
         'parents': ListParam<Person>(Person.new),
       },
       // Param names Object <-> Param name in API
-      paramNameReplace: {
+      aliases: {
         Home: {'owner': 'master'},
         Person: {'id': 'key'}
       },
@@ -152,19 +228,25 @@ void main() {
     expect(home.parents[1].age, 23);
   });
 
-  test('fromJson works only named params constructor', () {
-    expect(() => dson.fromJson({}, (String name) {}),
-        throwsA(isA<ParamsNotAllowed>()));
-  });
-
-  test('throws error if dont has required param', () {
+  test(
+      'throws error if dont has required param when use aliases in required param',
+      () {
     final jsonMap = {
-      'name': 'Joshua Clak',
-      'age': 3,
+      'id': 2,
+      'name': 'Kepper Vidal',
+      'age': 25,
     };
 
-    expect(() => dson.fromJson(jsonMap, Person.new),
-        throwsA(isA<DSONException>()));
+    expect(
+      () => dson.fromJson(
+        jsonMap,
+        Person.new,
+        aliases: {
+          Person: {'id': 'key'}
+        },
+      ),
+      throwsA(isA<DSONException>()),
+    );
   });
 }
 

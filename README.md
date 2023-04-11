@@ -115,9 +115,9 @@ main(){
 
 DSON Have `ListParam` and `SetParam` for collection.
 
-## When API replace Param Name:
+## When API replace Param Name (Set aliases):
 
-You need to declare within the paramNameReplace map the object type that has changed in the key, and in the value, a map with the old key as the key and the new key as the value.
+You need to declare within the aliases map the object type that has changed in the key, and in the value, a map with the old key as the key and the new key as the value.
 
 ```dart
 main(){
@@ -154,7 +154,7 @@ main(){
         'parents': ListParam<Person>(Person.new),
       },
       // Param names Object <-> Param name in API
-      paramNameReplace: {
+      aliases: {
         Home: {'owner': 'master'},
         Person: {'id': 'key'}
       }
