@@ -13,16 +13,14 @@ class DSON {
     Map<Type, Map<String, String>> aliases = const {},
   }) {
     final mainConstructorNamed = mainConstructor.runtimeType.toString();
-    final aliasesWithTypeInString =
-        aliases.map((key, value) => MapEntry(key.toString(), value));
-    final hasOnlyNamedParams =
-        RegExp(r'\(\{(.+)\}\)').firstMatch(mainConstructorNamed);
+    final aliasesWithTypeInString = aliases.map((key, value) => MapEntry(key.toString(), value));
+    final hasOnlyNamedParams = RegExp(r'\(\{(.+)\}\)').firstMatch(mainConstructorNamed);
     final className = mainConstructorNamed.split(' => ').last;
     if (hasOnlyNamedParams == null) {
       throw ParamsNotAllowed('$className must have named params only!');
     }
 
-    final regExp = namedParamsRegExMatch(className, mainConstructorNamed);
+    final regExp = _namedParamsRegExMatch(className, mainConstructorNamed);
 
     final params = regExp //
         .group(1)!
@@ -34,8 +32,7 @@ class DSON {
             dynamic value;
 
             String paramName = param.name;
-            final newParamName =
-                aliasesWithTypeInString[className]?[param.name];
+            final newParamName = aliasesWithTypeInString[className]?[param.name];
 
             if (newParamName != null) {
               paramName = newParamName;
@@ -61,20 +58,17 @@ class DSON {
                   aliases: aliases,
                 );
               } else {
-                throw DSONException(
-                    'Param $className.${param.name} is a ${workflow.runtimeType} and don\'t have a "inner".');
+                value = workflow;
               }
             } else {
               value = workflow;
             }
 
-            value = resolvers.fold(value,
-                (previousValue, element) => element(param.name, previousValue));
+            value = resolvers.fold(value, (previousValue, element) => element(param.name, previousValue));
 
             if (value == null) {
               if (param.isRequired) {
-                throw DSONException(
-                    'Param $className.${param.name} is required.');
+                throw DSONException('Param $className.${param.name} is required.');
               } else {
                 return null;
               }
@@ -95,8 +89,7 @@ class DSON {
     return Function.apply(mainConstructor, [], namedParams);
   }
 
-  RegExpMatch namedParamsRegExMatch(
-      String className, String mainConstructorNamed) {
+  RegExpMatch _namedParamsRegExMatch(String className, String mainConstructorNamed) {
     final result = RegExp(r'\(\{(.+)\}\)').firstMatch(mainConstructorNamed);
 
     if (result == null) {

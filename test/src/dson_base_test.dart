@@ -96,8 +96,7 @@ void main() {
   });
 
   test('fromJson works only named params constructor', () {
-    expect(() => dson.fromJson({}, (String name) {}, aliases: {}),
-        throwsA(isA<ParamsNotAllowed>()));
+    expect(() => dson.fromJson({}, (String name) {}, aliases: {}), throwsA(isA<ParamsNotAllowed>()));
   });
 
   test('throws error if dont has required param', () {
@@ -106,34 +105,7 @@ void main() {
       'age': 3,
     };
 
-    expect(() => dson.fromJson(jsonMap, Person.new),
-        throwsA(isA<DSONException>()));
-  });
-
-  test('throw error if not has inner when has object complex', () {
-    final jsonMap = {
-      'id': 1,
-      'name': 'MyHome',
-      'owner': {
-        'id': 1,
-        'name': 'Joshua Clak',
-        'age': 3,
-      },
-      'parents': [
-        {
-          'id': 2,
-          'name': 'Kepper Vidal',
-          'age': 25,
-        },
-        {
-          'id': 3,
-          'name': 'Douglas Bisserra',
-          'age': 23,
-        },
-      ],
-    };
-    expect(
-        () => dson.fromJson(jsonMap, Home.new), throwsA(isA<DSONException>()));
+    expect(() => dson.fromJson(jsonMap, Person.new), throwsA(isA<DSONException>()));
   });
 
   test('fromJson convert map in Person with id alias to key', () {
@@ -150,9 +122,7 @@ void main() {
     expect(person.age, 3);
   });
 
-  test(
-      'fromJson convert map in Person withless name when name has alias but alias no exist in map',
-      () {
+  test('fromJson convert map in Person withless name when name has alias but alias no exist in map', () {
     final jsonMap = {
       'id': 1,
       'name': 'Joshua Clak',
@@ -171,8 +141,7 @@ void main() {
     expect(person.age, 3);
   });
 
-  test('fromJson convert map in Home (inner object) when API modify most keys',
-      () {
+  test('fromJson convert map in Home (inner object) when API modify most keys', () {
     final jsonMap = {
       'id': 1,
       'name': 'MyHome',
@@ -228,9 +197,7 @@ void main() {
     expect(home.parents[1].age, 23);
   });
 
-  test(
-      'throws error if dont has required param when use aliases in required param',
-      () {
+  test('throws error if dont has required param when use aliases in required param', () {
     final jsonMap = {
       'id': 2,
       'name': 'Kepper Vidal',
@@ -247,6 +214,21 @@ void main() {
       ),
       throwsA(isA<DSONException>()),
     );
+  });
+
+  test('Convert List with primitive type', () {
+    final list = ['Philadelphia, PA, USA'];
+
+    final json = {
+      'destination_addresses': list,
+    };
+
+    final primitive = DSON().fromJson<PrimitiveList>(
+      json,
+      PrimitiveList.new,
+    );
+
+    expect(primitive.destination_addresses, list);
   });
 }
 
@@ -276,5 +258,12 @@ class Home {
     required this.name,
     required this.owner,
     required this.parents,
+  });
+}
+
+class PrimitiveList {
+  final List<String> destination_addresses;
+  PrimitiveList({
+    required this.destination_addresses,
   });
 }

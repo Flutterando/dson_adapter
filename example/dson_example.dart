@@ -8,8 +8,6 @@ void main() {
   };
 
   final person = DSON().fromJson<Person>(jsondata, Person.new);
-
-  print(person.age);
 }
 
 class Person {
@@ -21,5 +19,12 @@ class Person {
     required this.id,
     this.name,
     this.age = 20,
+  });
+}
+
+class Test {
+  final List<String> destination_addresses;
+  Test({
+    required this.destination_addresses,
   });
 }

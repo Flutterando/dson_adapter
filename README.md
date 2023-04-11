@@ -1,6 +1,6 @@
 # DSON
 
-Convert JSON to Dart Class withless code generate(build_runner)
+Convert JSON to Dart Class withless code generate(build_runner).
 
 ## A simple Object
 
