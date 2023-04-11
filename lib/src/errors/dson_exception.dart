@@ -1,13 +1,19 @@
-class DSONException extends Error {
+/// Exception from DSON
+class DSONException implements Exception {
+  /// Message for exception
   final String message;
-  @override
+
+  /// stackTrace for exception
   final StackTrace? stackTrace;
 
+  /// Exception from DSON
   DSONException(this.message, [this.stackTrace]);
+
+  String get _className => 'DSONException';
 
   @override
   String toString() {
-    var message = '$runtimeType: ${this.message}';
+    var message = '$_className: ${this.message}';
     if (stackTrace != null) {
       message = '$message\n$stackTrace';
     }
@@ -16,6 +22,11 @@ class DSONException extends Error {
   }
 }
 
+/// Called when params is not allowed
 class ParamsNotAllowed extends DSONException {
-  ParamsNotAllowed(super.message);
+  /// Called when params is not allowed
+  ParamsNotAllowed(super.message, [super.stackTrace]);
+
+  @override
+  String get _className => 'ParamsNotAllowed';
 }

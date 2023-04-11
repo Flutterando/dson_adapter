@@ -1,6 +1,6 @@
 name: dson_adapter
 description: Convert JSON to Dart Class withless code generate(build_runner)
-version: 1.2.0+1
+version: 1.2.0+2
 repository: https://github.com/Flutterando/dson_adapter
 
 environment:
@@ -10,5 +10,5 @@ environment:
 #   path: ^1.8.0
 
 dev_dependencies:
-  lints: ^2.0.0
+  flutterando_analysis: ^0.0.2
   test: ^1.16.0

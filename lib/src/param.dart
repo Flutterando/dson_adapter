@@ -1,6 +1,9 @@
 import '../dson_adapter.dart';
 
+/// Used in "inner" propetier.<br>
+/// IParam represents complex transform, for example: ListParam, SetParam
 abstract class IParam<T> {
+  /// execute transform
   T call(
     DSON dson,
     dynamic map,
@@ -10,10 +13,14 @@ abstract class IParam<T> {
   );
 }
 
+/// Used in "inner" propetier.<br>
+/// Represent a List with no primitive value;
 class ListParam<T> implements IParam<List<T>> {
-  final Function constructor;
+  final Function _constructor;
 
-  ListParam(this.constructor);
+  /// Used in "inner" propetier.<br>
+  /// Represent a List with no primitive value;
+  ListParam(this._constructor);
 
   @override
   List<T> call(
@@ -27,7 +34,7 @@ class ListParam<T> implements IParam<List<T>> {
         .map((e) {
           return dson.fromJson(
             e,
-            constructor,
+            _constructor,
             inner: inner,
             resolvers: resolvers,
             aliases: aliases,
@@ -40,10 +47,14 @@ class ListParam<T> implements IParam<List<T>> {
   }
 }
 
+/// Used in "inner" propetier.<br>
+/// Represent a Set with no primitive value;
 class SetParam<T> implements IParam<Set<T>> {
-  final Function constructor;
+  final Function _constructor;
 
-  SetParam(this.constructor);
+  /// Used in "inner" propetier.<br>
+  /// Represent a Set with no primitive value;
+  SetParam(this._constructor);
 
   @override
   Set<T> call(
@@ -57,7 +68,7 @@ class SetParam<T> implements IParam<Set<T>> {
         .map((e) {
           return dson.fromJson(
             e,
-            constructor,
+            _constructor,
             inner: inner,
             resolvers: resolvers,
             aliases: aliases,

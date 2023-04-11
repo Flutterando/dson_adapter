@@ -1,11 +1,13 @@
 import '../dson_adapter.dart';
 
+/// Function to transform the value of an object based on its key
 typedef ResolverCallback = Object Function(String key, dynamic value);
 
+/// Convert JSON to Dart Class withless code generate(build_runner)
 class DSON {
+  /// Convert JSON to Dart Class withless code generate(build_runner)
   const DSON();
 
-  /// Convert JSON to Dart Class withless code generate(build_runner)
   ///
   /// For complex objects it is necessary to declare the constructor in
   /// the [inner] property and declare the list resolver in the [resolvers]
@@ -45,8 +47,10 @@ class DSON {
     Map<Type, Map<String, String>> aliases = const {},
   }) {
     final mainConstructorNamed = mainConstructor.runtimeType.toString();
-    final aliasesWithTypeInString = aliases.map((key, value) => MapEntry(key.toString(), value));
-    final hasOnlyNamedParams = RegExp(r'\(\{(.+)\}\)').firstMatch(mainConstructorNamed);
+    final aliasesWithTypeInString =
+        aliases.map((key, value) => MapEntry(key.toString(), value));
+    final hasOnlyNamedParams =
+        RegExp(r'\(\{(.+)\}\)').firstMatch(mainConstructorNamed);
     final className = mainConstructorNamed.split(' => ').last;
     if (hasOnlyNamedParams == null) {
       throw ParamsNotAllowed('$className must have named params only!');
@@ -63,8 +67,9 @@ class DSON {
           (param) {
             dynamic value;
 
-            String paramName = param.name;
-            final newParamName = aliasesWithTypeInString[className]?[param.name];
+            var paramName = param.name;
+            final newParamName =
+                aliasesWithTypeInString[className]?[param.name];
 
             if (newParamName != null) {
               paramName = newParamName;
@@ -96,11 +101,16 @@ class DSON {
               value = workflow;
             }
 
-            value = resolvers.fold(value, (previousValue, element) => element(param.name, previousValue));
+            value = resolvers.fold(
+              value,
+              (previousValue, element) => element(param.name, previousValue),
+            );
 
             if (value == null) {
               if (param.isRequired) {
-                throw DSONException('Param $className.${param.name} is required.');
+                throw DSONException(
+                  'Param $className.${param.name} is required.',
+                );
               } else {
                 return null;
               }
@@ -114,14 +124,15 @@ class DSON {
         .cast<MapEntry<Symbol, dynamic>>()
         .toList();
 
-    final namedParams = <Symbol, dynamic>{};
-
-    namedParams.addEntries(params);
+    final namedParams = <Symbol, dynamic>{}..addEntries(params);
 
     return Function.apply(mainConstructor, [], namedParams);
   }
 
-  RegExpMatch _namedParamsRegExMatch(String className, String mainConstructorNamed) {
+  RegExpMatch _namedParamsRegExMatch(
+    String className,
+    String mainConstructorNamed,
+  ) {
     final result = RegExp(r'\(\{(.+)\}\)').firstMatch(mainConstructorNamed);
 
     if (result == null) {

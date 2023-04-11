@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 void main() {
   late DSON dson;
   setUp(() {
-    dson = DSON();
+    dson = const DSON();
   });
 
   test('fromJson convert map in Person', () {
@@ -14,7 +14,7 @@ void main() {
       'age': 3,
     };
 
-    Person person = dson.fromJson(jsonMap, Person.new);
+    final person = dson.fromJson(jsonMap, Person.new);
     expect(person.id, 1);
     expect(person.name, 'Joshua Clak');
     expect(person.age, 3);
@@ -26,7 +26,7 @@ void main() {
       'age': 3,
     };
 
-    Person person = dson.fromJson(jsonMap, Person.new);
+    final person = dson.fromJson(jsonMap, Person.new);
     expect(person.id, 1);
     expect(person.name, null);
     expect(person.age, 3);
@@ -38,7 +38,7 @@ void main() {
       'name': 'Joshua Clak',
     };
 
-    Person person = dson.fromJson(jsonMap, Person.new);
+    final person = dson.fromJson(jsonMap, Person.new);
     expect(person.id, 1);
     expect(person.name, 'Joshua Clak');
     expect(person.age, 20);
@@ -67,7 +67,7 @@ void main() {
       ],
     };
 
-    Home home = dson.fromJson(
+    final home = dson.fromJson(
       // json Map or List
       jsonMap,
       // Main constructor
@@ -96,7 +96,10 @@ void main() {
   });
 
   test('fromJson works only named params constructor', () {
-    expect(() => dson.fromJson({}, (String name) {}, aliases: {}), throwsA(isA<ParamsNotAllowed>()));
+    expect(
+      () => dson.fromJson({}, (String name) {}, aliases: {}),
+      throwsA(isA<ParamsNotAllowed>()),
+    );
   });
 
   test('throws error if dont has required param', () {
@@ -105,7 +108,10 @@ void main() {
       'age': 3,
     };
 
-    expect(() => dson.fromJson(jsonMap, Person.new), throwsA(isA<DSONException>()));
+    expect(
+      () => dson.fromJson(jsonMap, Person.new),
+      throwsA(isA<DSONException>()),
+    );
   });
 
   test('fromJson convert map in Person with id alias to key', () {
@@ -114,22 +120,28 @@ void main() {
       'name': 'Joshua Clak',
       'age': 3,
     };
-    Person person = dson.fromJson(jsonMap, Person.new, aliases: {
-      Person: {'id': 'key'}
-    });
+    final person = dson.fromJson(
+      jsonMap,
+      Person.new,
+      aliases: {
+        Person: {'id': 'key'}
+      },
+    );
     expect(person.id, 1);
     expect(person.name, 'Joshua Clak');
     expect(person.age, 3);
   });
 
-  test('fromJson convert map in Person withless name when name has alias but alias no exist in map', () {
+  test(
+      'fromJson convert map in Person withless name when name '
+      'has alias but alias no exist in map', () {
     final jsonMap = {
       'id': 1,
       'name': 'Joshua Clak',
       'age': 3,
     };
 
-    Person person = dson.fromJson(
+    final person = dson.fromJson(
       jsonMap,
       Person.new,
       aliases: {
@@ -141,7 +153,8 @@ void main() {
     expect(person.age, 3);
   });
 
-  test('fromJson convert map in Home (inner object) when API modify most keys', () {
+  test('fromJson convert map in Home (inner object) when API modify most keys',
+      () {
     final jsonMap = {
       'id': 1,
       'name': 'MyHome',
@@ -164,7 +177,7 @@ void main() {
       ],
     };
 
-    Home home = dson.fromJson(
+    final home = dson.fromJson(
       // json Map or List
       jsonMap,
       // Main constructor
@@ -197,7 +210,9 @@ void main() {
     expect(home.parents[1].age, 23);
   });
 
-  test('throws error if dont has required param when use aliases in required param', () {
+  test(
+      'throws error if dont has required param when '
+      'use aliases in required param', () {
     final jsonMap = {
       'id': 2,
       'name': 'Kepper Vidal',
@@ -223,12 +238,15 @@ void main() {
       'destination_addresses': list,
     };
 
-    final primitive = DSON().fromJson<PrimitiveList>(
+    final primitive = const DSON().fromJson<PrimitiveList>(
       json,
       PrimitiveList.new,
+      aliases: {
+        PrimitiveList: {'destinationAddresses': 'destination_addresses'},
+      },
     );
 
-    expect(primitive.destination_addresses, list);
+    expect(primitive.destinationAddresses, list);
   });
 }
 
@@ -262,8 +280,8 @@ class Home {
 }
 
 class PrimitiveList {
-  final List<String> destination_addresses;
+  final List<String> destinationAddresses;
   PrimitiveList({
-    required this.destination_addresses,
+    required this.destinationAddresses,
   });
 }
