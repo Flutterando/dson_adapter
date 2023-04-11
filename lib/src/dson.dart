@@ -5,6 +5,36 @@ typedef ResolverCallback = Object Function(String key, dynamic value);
 class DSON {
   const DSON();
 
+  /// Convert JSON to Dart Class withless code generate(build_runner)
+  ///
+  /// In DSON, you could use:
+  /// ```dart
+  /// Home home = dson.fromJson(
+  ///   // json Map or List
+  ///   jsonMap,
+  ///   // Main constructor
+  ///   Home.new,
+  ///   // external types
+  ///   inner: {
+  ///     'owner': Person.new,
+  ///     'parents': ListParam<Person>(Person.new),
+  ///   },
+  ///   // Param names Object <-> Param name in API
+  ///   aliases: {
+  ///     Home: {'owner': 'master'},
+  ///     Person: {'id': 'key'}
+  ///   }
+  /// );
+  /// ```
+  /// For complex objects it is necessary to declare the constructor in
+  /// the `inner` property and declare the list resolver in the `resolvers`
+  /// property.
+  ///
+  /// The `aliases` parameter can be used to create alias to specify the name
+  /// of a field when it is deserialized.
+  ///
+  /// For more information on queries, see the
+  /// [documentation](https://pub.dev/documentation/dson_adapter/latest/).
   T fromJson<T>(
     dynamic map,
     Function mainConstructor, {
