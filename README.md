@@ -55,7 +55,7 @@ main(){
     };
 
     Person person = dson.fromJson(
-      jsonMap, 
+      jsonMap,
       Person.new,
       inner: {
         'owner':  Person.new,
@@ -69,7 +69,7 @@ main(){
 
 ## A complex object with List:
 
-For work with a list, it is necessary to declare the constructor in the `inner` property and declare 
+For work with a list, it is necessary to declare the constructor in the `inner` property and declare
 the list resolver in the `resolvers` property.
 
 ```dart
@@ -115,4 +115,52 @@ main(){
 
 DSON Have `ListParam` and `SetParam` for collection.
 
+## When API replace Param Name (Set aliases):
 
+You need to declare within the aliases map the object type that has changed in the key, and in the value, a map with the old key as the key and the new key as the value.
+
+```dart
+main(){
+    final jsonMap = {
+      'id': 1,
+      'name': 'MyHome',
+      'master': {
+        'key': 1,
+        'name': 'Joshua Clak',
+        'age': 3,
+      },
+      'parents': [
+        {
+          'key': 2,
+          'name': 'Kepper Vidal',
+          'age': 25,
+        },
+        {
+          'key': 3,
+          'name': 'Douglas Bisserra',
+          'age': 23,
+        },
+      ],
+    };
+
+    Home home = dson.fromJson(
+      // json Map or List
+      jsonMap,
+      // Main constructor
+      Home.new,
+      // external types
+      inner: {
+        'owner': Person.new,
+        'parents': ListParam<Person>(Person.new),
+      },
+      // Param names Object <-> Param name in API
+      aliases: {
+        Home: {'owner': 'master'},
+        Person: {'id': 'key'}
+      }
+    );
+
+    print(home);
+}
+
+```
