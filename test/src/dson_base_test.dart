@@ -12,12 +12,14 @@ void main() {
       'id': 1,
       'name': 'Joshua Clak',
       'age': 3,
+      'nickname': 'Josh',
     };
 
-    final person = dson.fromJson(jsonMap, Person.new);
+    final person = dson.fromJson<Person>(jsonMap, Person.new);
     expect(person.id, 1);
     expect(person.name, 'Joshua Clak');
     expect(person.age, 3);
+    expect(person.nickname, 'Josh');
   });
 
   test('fromJson convert map in Person withless name', () {
@@ -102,7 +104,7 @@ void main() {
     );
   });
 
-  test('throws error if dont has required param', () {
+  test('throws error if dont has non-nullable required param [id]', () {
     final jsonMap = {
       'name': 'Joshua Clak',
       'age': 3,
@@ -248,18 +250,81 @@ void main() {
 
     expect(primitive.destinationAddresses, list);
   });
+
+  test(
+      'fromJson should allow '
+      'to have required and nullable parameters simultaneously', () {
+    // arrange
+    final jsonMap = {
+      'id': 1,
+      'age': 3,
+    };
+
+    // act
+    final person = dson.fromJson<Person>(jsonMap, Person.new);
+
+    // assert
+    expect(person.age, 3); // not required and non-nullable
+    expect(person.name, null); // not required and nullable
+    expect(person.id, 1); // required and non-nullable
+    expect(person.nickname, null); // required and nullable
+  });
+
+  test(
+      'fromJson convert map in Person '
+      'with required and nullable param nickname equal null', () {
+    // arrange
+    final jsonMap = {
+      'id': 1,
+      'age': 3,
+      'name': 'Joshua Clak',
+    };
+
+    // act
+    final person = dson.fromJson<Person>(jsonMap, Person.new);
+
+    // assert
+    expect(person.id, 1);
+    expect(person.age, 3);
+    expect(person.name, 'Joshua Clak');
+    expect(person.nickname, 'Joshua Clak');
+  });
+
+  test(
+      'Given a list [List<Object?>] is not nullable, '
+      'When the converted json for this list is null, '
+      'Then it should throw an exception of type [DSONException] '
+      'instead of [TypeError]', () {
+    // arrange
+    final errorsSnapshotJson = {'errors': null};
+
+    // act, assert
+    expect(
+      () => dson.fromJson<ErrorsSnapshot>(
+        errorsSnapshotJson,
+        ErrorsSnapshot.new,
+      ),
+      throwsA(
+        predicate(
+          (e) => e is DSONException && e is! TypeError,
+        ),
+      ),
+    );
+  });
 }
 
 class Person {
   final int id;
   final String? name;
   final int age;
+  final String? nickname;
 
   Person({
     required this.id,
     this.name,
     this.age = 20,
-  });
+    required String? nickname,
+  }) : nickname = nickname ?? name;
 
   @override
   String toString() => 'PersonModel(id: $id, name: $name, age: $age)';
@@ -284,4 +349,9 @@ class PrimitiveList {
   PrimitiveList({
     required this.destinationAddresses,
   });
+}
+
+class ErrorsSnapshot {
+  final List<String?> errors;
+  ErrorsSnapshot({required this.errors});
 }
