@@ -108,9 +108,18 @@ class DSON {
 
             if (value == null) {
               if (param.isRequired) {
-                throw DSONException(
-                  'Param $className.${param.name} is required.',
-                );
+                if (param.isNullable) {
+                  final entry = MapEntry(
+                    Symbol(param.name),
+                    null,
+                  );
+                  return entry;
+                } else {
+                  throw DSONException(
+                    'Param $className.${param.name} '
+                    'is required and non-nullable.',
+                  );
+                }
               } else {
                 return null;
               }
@@ -164,10 +173,11 @@ class _FunctionParam {
 
     var type = elements.last;
 
-    final isNullable = type.contains('?');
+    final lastMarkQuestionIndex = type.lastIndexOf('?');
+    final isNullable = lastMarkQuestionIndex == type.length - 1;
 
     if (isNullable) {
-      type = type.replaceFirst('?', '');
+      type = type.replaceFirst('?', '', lastMarkQuestionIndex);
     }
 
     final isRequired = elements.contains('required');
