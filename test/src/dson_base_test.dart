@@ -413,6 +413,59 @@ void main() {
   });
 
   test(
+      'Given [key] is an alias of the parameter [id], '
+      'And [key] is specified in the [aliases] property, '
+      'And [key] value is null, '
+      'When [dson.fromJson] is called, '
+      'Then it should throw an exception of type [ParamNullNotAllowed]', () {
+    final jsonMap = {
+      'key': null,
+      'name': 'Joshua Clak',
+      'age': 3,
+      'nickname': 'Josh',
+    };
+
+    expect(
+      () => dson.fromJson(
+        jsonMap,
+        Person.new,
+        aliases: {
+          Person: {
+            'id': 'key',
+          }
+        },
+      ),
+      throwsA(isA<ParamNullNotAllowed>()),
+    );
+  });
+
+  test(
+      'Given [key] is an alias of the parameter [id], '
+      'And [key] is specified in the [aliases] property, '
+      'And [key] is not present in the json, '
+      'When [dson.fromJson] is called, '
+      'Then it should throw an exception of type [ParamNullNotAllowed]', () {
+    final jsonMap = {
+      'name': 'Joshua Clak',
+      'age': 3,
+      'nickname': 'Josh',
+    };
+
+    expect(
+      () => dson.fromJson(
+        jsonMap,
+        Person.new,
+        aliases: {
+          Person: {
+            'id': 'key',
+          }
+        },
+      ),
+      throwsA(isA<ParamNullNotAllowed>()),
+    );
+  });
+
+  test(
       'Since [parents] is a list of [Pearson], '
       'When the value of [parents] is a list of [List], '
       'Then it should throw an error [ParamUnknown] ', () {
@@ -475,7 +528,7 @@ void main() {
               e.receivedType == 'String' &&
               e.message ==
                   "Type not iterable 'String' is not a subtype of type "
-                      '[Person].',
+                      "'Person'.",
         ),
       ),
     );

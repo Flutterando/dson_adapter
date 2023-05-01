@@ -49,8 +49,8 @@ class ParamUnknown extends DSONException {
     this.paramName,
     StackTrace? stackTrace,
   }) : super(
-          'Unknown error while trying parse parameter [$paramName] on class'
-          ' [$parentClass]',
+          "Unknown error while trying parse parameter '$paramName' on class"
+          " '$parentClass'",
           stackTrace,
         );
 
@@ -72,8 +72,8 @@ class ParamNullNotAllowed extends DSONException {
     StackTrace? stackTrace,
     required this.parentClass,
   }) : super(
-          "$parentClass({${functionParam.isRequired ? 'required ' : ''}"
-          '$functionParam})'
+          "Param '${functionParam.name}' from $parentClass"
+          '({required $functionParam})'
           "${functionParam.alias != null ? " with alias"
               " '${functionParam.alias}'," : ''}"
           ' is required and non-nullable, but the value is null or some alias'
@@ -156,7 +156,7 @@ class ParamInvalidType extends DSONException {
   }) {
     return ParamInvalidType(
       "Type not iterable '$receivedType' is not a subtype of type"
-      " [$parentClass]${functionParam.alias != null ? " with alias '"
+      " '$parentClass'${functionParam.alias != null ? " with alias '"
           "${functionParam.alias}'." : '.'}",
       stackTrace,
       receivedType: receivedType,
