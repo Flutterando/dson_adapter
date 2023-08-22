@@ -1,6 +1,5 @@
-import 'package:collection/collection.dart';
-
 import '../../dson_adapter.dart';
+import '../extensions/iterable_extension.dart';
 
 /// Exception from DSON
 class DSONException implements Exception {
@@ -13,7 +12,7 @@ class DSONException implements Exception {
   /// Exception from DSON
   DSONException(this.message, [this.stackTrace]);
 
-  String get _className => '[DSONException]';
+  String get _className => '[$DSONException]';
 
   @override
   String toString() {
@@ -32,7 +31,7 @@ class ParamsNotAllowed extends DSONException {
   ParamsNotAllowed(super.message, [super.stackTrace]);
 
   @override
-  String get _className => '[ParamsNotAllowed]';
+  String get _className => '[$ParamsNotAllowed]';
 }
 
 /// Called when param is unknown and the library is not able to handle it
@@ -55,7 +54,7 @@ class ParamUnknown extends DSONException {
         );
 
   @override
-  String get _className => '[ParamUnknown]';
+  String get _className => '[$ParamUnknown]';
 }
 
 /// Called when value is null, but params is required and non-nullable
@@ -82,7 +81,7 @@ class ParamNullNotAllowed extends DSONException {
         );
 
   @override
-  String get _className => '[ParamNullNotAllowed]';
+  String get _className => '[$ParamNullNotAllowed]';
 }
 
 /// Called when params is not the correct type
@@ -106,7 +105,7 @@ class ParamInvalidType extends DSONException {
   });
 
   @override
-  String get _className => '[ParamInvalidType]';
+  String get _className => '[$ParamInvalidType]';
 
   /// Called when params is not the correct type
   factory ParamInvalidType.typeError({

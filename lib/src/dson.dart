@@ -113,23 +113,17 @@ class DSON {
               );
 
               if (value == null) {
-                if (functionParam.isRequired) {
-                  if (functionParam.isNullable) {
-                    final entry = MapEntry(
-                      Symbol(functionParam.name),
-                      null,
-                    );
-                    return entry;
-                  } else {
-                    throw ParamNullNotAllowed(
-                      functionParam: functionParam,
-                      parentClass: parentClass,
-                      stackTrace: StackTrace.current,
-                    );
-                  }
-                } else {
-                  return null;
+                if (!functionParam.isRequired) return null;
+                if (!functionParam.isNullable) {
+                  throw ParamNullNotAllowed(
+                    functionParam: functionParam,
+                    parentClass: parentClass,
+                    stackTrace: StackTrace.current,
+                  );
                 }
+
+                final entry = MapEntry(Symbol(functionParam.name), null);
+                return entry;
               }
 
               final entry = MapEntry(Symbol(functionParam.name), value);
