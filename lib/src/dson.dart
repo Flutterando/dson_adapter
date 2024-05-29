@@ -97,6 +97,7 @@ class DSON {
                   value = fromJson(
                     workflow,
                     innerParam,
+                    resolvers: resolvers,
                     aliases: aliases,
                   );
                 } else {
